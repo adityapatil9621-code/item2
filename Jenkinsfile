@@ -36,7 +36,14 @@ pipeline {
             }
         }
     }
-
+         stage('Deploy Website') {
+             steps {
+                 sh '''
+                  docker rm -f adrios12-website || true
+                  docker run -d --name adrios12-website -p 8081:80 adrios12-website
+                 '''
+     }
+}
     post {
         success {
             echo 'Jenkins CI/CD pipeline completed successfully!'
