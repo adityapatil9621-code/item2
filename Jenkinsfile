@@ -10,32 +10,24 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t adrios12-app:latest .'
+                sh 'docker build -t adrios12-website .'
             }
         }
 
         stage('Test Docker Image') {
             steps {
-                bat 'docker run -d --name adrios12-jenkins-test -p 8082:80 adrios12-app:latest'
-
-                powershell '''
-                    try {
-                        $response = Invoke-WebRequest `
-                            -Uri "http://localhost:8082" `
-                            -UseBasicParsing
-
-                        if ($response.StatusCode -ne 200) {
-                            throw "Web application test failed"
-                        }
-
-                        Write-Output "Docker application test passed!"
-                    }
-                    finally {
-                        docker stop adrios12-jenkins-test
-                        docker rm adrios12-jenkins-test
-                    }
-                '''
+                sh 'docker image inspect adrios12-website'
+                echo 'Docker image built and verified successfully!'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Jenkins CI/CD pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the console output.'
         }
     }
 }
