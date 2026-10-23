@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -35,18 +36,25 @@ pipeline {
                 echo 'Docker image built and verified successfully!'
             }
         }
+
+        stage('Deploy Website') {
+            steps {
+                sh '''
+                    docker rm -f adrios12-website || true
+                    docker run -d \
+                        --name adrios12-website \
+                        --restart unless-stopped \
+                        -p 8081:80 \
+                        adrios12-website
+                '''
+            }
+        }
     }
-         stage('Deploy Website') {
-             steps {
-                 sh '''
-                  docker rm -f adrios12-website || true
-                  docker run -d --name adrios12-website -p 8081:80 adrios12-website
-                 '''
-     }
-}
+
     post {
         success {
             echo 'Jenkins CI/CD pipeline completed successfully!'
+            echo 'Website URL: http://localhost:8081'
         }
         failure {
             echo 'Pipeline failed. Check the console output.'
